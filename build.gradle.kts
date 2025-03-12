@@ -34,27 +34,21 @@ tasks.shadowJar {
     archiveClassifier = "shaded"
 }
 
-tasks.register<Copy>("runServer") {
+tasks.register<JavaExec>("runServer") {
     outputs.upToDateWhen { false }
     dependsOn("shadowJar")
-    val launcherRepo = "https://raw.githubusercontent.com/AllayMC/AllayLauncher/refs/heads/main/scripts"
-    val cmdWin = "Invoke-Expression (Invoke-WebRequest -Uri \"${launcherRepo}/install_windows.ps1\").Content"
-    val cmdLinux = "wget -qO- ${launcherRepo}/install_linux.sh | bash"
-    val cwd = layout.buildDirectory.file("run").get().asFile
 
     val shadowJar = tasks.named("shadowJar", ShadowJar::class).get()
-    from(shadowJar.archiveFile.get().asFile)
-    into(cwd.resolve("plugins").apply { mkdirs() })
+    val pluginJar = shadowJar.archiveFile.get().asFile
+    val cwd = layout.buildDirectory.file("run").get().asFile
+    val pluginsDir = cwd.resolve("plugins").apply { mkdirs() }
+    doFirst { pluginJar.copyTo(File(pluginsDir, pluginJar.name), overwrite = true) }
 
-    val isDownloaded = cwd.listFiles()!!.any { it.isFile && it.nameWithoutExtension == "allay" }
-    val isWindows = System.getProperty("os.name").startsWith("Windows")
-    fun launch() = exec {
-        workingDir = cwd
-        val cmd = if (isDownloaded) "./allay" else if (isWindows) cmdWin else cmdLinux
-        if (isWindows) commandLine("powershell", "-Command", cmd)
-        else commandLine("sh", "-c", cmd)
-    }
-
-    // https://github.com/gradle/gradle/issues/18716  // kill it manually by click X...
-    doLast { launch() }
+    val group = "org.allaymc.allay"
+    val allays = configurations.compileOnly.get().dependencies.filter { it.group == group }
+    val dependency = allays.find { it.name == "server" } ?: allays.find { it.name == "api" }!!
+    val server = dependencies.create("$group:server:${dependency.version}")
+    classpath = files(configurations.detachedConfiguration(server).resolve())
+    mainClass = "org.allaymc.server.Allay"
+    workingDir = cwd
 }
