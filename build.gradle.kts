@@ -7,7 +7,7 @@ plugins {
 
 group = "org.allaymc.javaplugintemplate"
 description = "Java plugin template for allay server"
-version = "1.0.0"
+version = "0.1.0"
 
 java {
     toolchain {
