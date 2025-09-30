@@ -17,7 +17,6 @@ java {
 
 repositories {
     mavenCentral()
-    maven("https://storehouse.okaeri.eu/repository/maven-public/")
 }
 
 dependencies {
