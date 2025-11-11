@@ -1,6 +1,6 @@
 plugins {
     id("java-library")
-    id("org.allaymc.gradle.plugin") version "0.1.1"
+    id("org.allaymc.gradle.plugin") version "0.1.2"
 }
 
 // TODO: Update the group to yours (should be same to the package of the plugin main class)
