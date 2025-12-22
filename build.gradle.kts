@@ -19,7 +19,7 @@ java {
 allay {
     // TODO: Update the api version to the latest
     // You can find the latest version here: https://central.sonatype.com/artifact/org.allaymc.allay/api
-    api = "0.18.0"
+    api = "0.19.0"
 
     plugin {
         // TODO: Update the entrance when you change your plugin main class
